@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Soundboard - 20 Slots</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1000px; }
+        .slot { background: #2a2a2a; border: 2px dashed #444; border-radius: 10px; padding: 15px; text-align: center; transition: 0.3s; }
+        .slot:hover { border-color: #00adb5; }
+        .slot.loaded { border-style: solid; border-color: #00adb5; }
+        input[type="file"] { display: none; }
+        .btn { cursor: pointer; background: #00adb5; border: none; color: white; padding: 8px 15px; border-radius: 5px; margin-top: 10px; display: block; width: 100%; }
+        .btn:disabled { background: #444; cursor: not-allowed; }
+        .label { font-size: 12px; margin-bottom: 5px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h1>Web Soundboard</h1>
+    <p>Upload audio to slots. Use a Virtual Cable to route to your mic.</p>
+
+    <div class="grid" id="soundboard">
+        </div>
+
+    <script>
+        const grid = document.getElementById('soundboard');
+        const totalSlots = 20;
+
+        for (let i = 1; i <= totalSlots; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.innerHTML = `
+                <div class="label">Slot ${i}</div>
+                <input type="file" id="file-${i}" accept="audio/*">
+                <button class="btn" onclick="document.getElementById('file-${i}').click()">Upload</button>
+                <button class="btn" id="play-${i}" disabled>Play</button>
+                <audio id="audio-${i}"></audio>
+            `;
+
+            grid.appendChild(slot);
+
+            const fileInput = slot.querySelector(`#file-${i}`);
+            const playBtn = slot.querySelector(`#play-${i}`);
+            const audioTag = slot.querySelector(`#audio-${i}`);
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const url = URL.createObjectURL(this.files[0]);
+                    audioTag.src = url;
+                    playBtn.disabled = false;
+                    slot.classList.add('loaded');
+                    playBtn.innerText = "Play: " + this.files[0].name.substring(0, 10) + "...";
+                }
+            });
+
+            playBtn.addEventListener('click', () => {
+                audioTag.currentTime = 0;
+                audioTag.play();
+            });
+        }
+    </script>
+</body>
+</html>
